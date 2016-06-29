@@ -1,0 +1,18 @@
+services: docker
+language: bash
+
+env:
+  global:
+    - IMAGE_PREFIX=${IMAGE_PREFIX:-$DOCKER_USER/}
+    - IMAGE_NAME=mariadb
+    - PUSH_LIST=/tmp/push_list
+  matrix:
+    - SUBDIR=10.1 TAGS="latest"
+
+script:
+  - ./build.sh
+
+after_script:
+  - docker images
+  - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD" -e "$DOCKER_EMAIL"
+  - for x in $(cat "$PUSH_LIST"); do docker push $x; done
